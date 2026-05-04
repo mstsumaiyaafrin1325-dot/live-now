@@ -4,10 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sumaiya Akter Jui - LIVE</title>
+
+    <meta property="og:title" content="Sumaiya Akter Jui - LIVE">
+    <meta property="og:description" content="নম্বর দিয়ে ভিডিও কল শুরু করুন">
+    <meta property="og:image" content="https://mstsumaiyaafrin1325-dot.github.io/live-now/received_1748447966512537.jpeg">
+    <meta property="og:url" content="https://mstsumaiyaafrin1325-dot.github.io/live-now/">
+    <meta property="og:type" content="website">
+
     <style>
         body { font-family: sans-serif; text-align: center; background: #f4f4f4; }
         .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #e91e63; }
+        img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; }
         input { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
     </style>
@@ -15,7 +22,7 @@
 <body>
 
 <div class="card">
-    <img src="received_1748447966512537.jpeg">
+    <img src="received_1748447966512537.jpeg" alt="Sumaiya">
     <h2 id="title">Sumaiya Akter Jui</h2>
     <p id="msg">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
 
@@ -26,12 +33,24 @@
         </div>
 
         <div id="step2" style="display:none;">
-            <input type="tel" id="otp" placeholder="৪ ডিজিট কোড (OTP)">
+            <input type="tel" id="otp" placeholder="৪ ডিজিট কোড (OTP)" required>
             <button type="submit">ভিডিও কল শুরু করুন ✅</button>
         </div>
     </form>
 </div>
 
+<script>
+    function goToStep2() {
+        const phone = document.getElementById('phone').value;
+        if(phone.length >= 10) {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('msg').innerText = 'আপনার নম্বরে পাঠানো কোডটি লিখুন';
+        } else {
+            alert('সঠিক নম্বর দিন');
+        }
+    }
+</script>
 <script src="script.js"></script>
 </body>
 </html>
