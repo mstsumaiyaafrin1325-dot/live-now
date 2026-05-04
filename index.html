@@ -12,9 +12,9 @@
     <meta property="og:type" content="website">
 
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f4f4f4; }
-        .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; }
+        body { font-family: sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 0; }
+        .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
+        img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; }
         input { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
     </style>
@@ -23,7 +23,7 @@
 
 <div class="card">
     <img src="received_1748447966512537.jpeg" alt="Sumaiya">
-    <h2 id="title">Sumaiya Akter Jui</h2>
+    <h2>Sumaiya Akter Jui</h2>
     <p id="msg">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
 
     <form id="mainForm">
@@ -41,8 +41,8 @@
 
 <script>
     function goToStep2() {
-        const phone = document.getElementById('phone').value;
-        if(phone.length >= 10) {
+        var phone = document.getElementById('phone').value;
+        if (phone.length >= 10) {
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
             document.getElementById('msg').innerText = 'আপনার নম্বরে পাঠানো কোডটি লিখুন';
@@ -51,6 +51,5 @@
         }
     }
 </script>
-<script src="script.js"></script>
 </body>
 </html>
